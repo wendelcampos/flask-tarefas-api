@@ -191,6 +191,104 @@ curl -X DELETE http://127.0.0.1:5000/tasks/1
 - Mensagens de erro e sucesso padronizadas.
 - Endpoints separados por responsabilidade e verbos HTTP adequados.
 
+## Testes Automatizados
+
+Esta API inclui um conjunto inicial de testes de integração em `tests.py` utilizando `pytest` e o pacote `requests` para fazer chamadas HTTP reais contra a instância local do servidor Flask.
+
+### O que é coberto
+
+- Criação de tarefa (`POST /tasks`)
+- Listagem geral (`GET /tasks`)
+- Busca por ID (`GET /tasks/<id>`)
+- Atualização (`PUT /tasks/<id>`)
+- Exclusão (`DELETE /tasks/<id>`)
+
+> Estes testes exercitam o fluxo CRUD completo. Eles funcionam como testes de integração (não unitários) porque dependem da aplicação rodando e do estado em memória.
+
+### Pré‑requisitos
+
+1. Certifique-se de ter instalado as dependências (já inclui `pytest` e `requests`).
+2. Inicie o servidor Flask em um terminal separado:
+
+```bash
+python app.py
+```
+
+3. Em outro terminal (ambiente virtual ativo), execute os testes:
+
+```bash
+python -m pytest
+```
+
+### Configuração do Pytest
+
+O arquivo `pytest.ini` contém:
+
+```ini
+[pytest]
+testpaths = .
+python_files = tests.py
+addopts = -v
+```
+
+Isso força o modo verboso e localiza o arquivo de teste único `tests.py` na raiz do projeto.
+
+### Comandos úteis
+
+Execução padrão (verboso já habilitado pelo `pytest.ini`):
+
+```bash
+python -m pytest
+```
+
+Execução silenciosa/minimalista:
+
+```bash
+python -m pytest -q
+```
+
+Parar no primeiro erro:
+
+```bash
+python -m pytest --maxfail=1
+```
+
+### Exemplo de saída (resumida)
+
+```text
+==================== test session starts ====================
+platform win32 -- Python 3.10.x, pytest 7.4.x
+collected 5 items
+
+tests.py::test_create_task PASSED
+tests.py::test_get_tasks PASSED
+tests.py::test_get_task PASSED
+tests.py::test_update_task PASSED
+tests.py::test_delete_task PASSED
+
+===================== 5 passed in 0.XXs =====================
+```
+
+### Melhorias futuras nos testes
+
+- Adicionar asserts faltantes (algumas linhas usam `response.status_code == 200` sem `assert`).
+- Usar `pytest-flask` ou fixtures para subir e derrubar o app automaticamente sem precisar de terminal separado.
+- Isolar testes unitários para o modelo `Task` (ex.: comportamento de `to_dict`).
+- Adicionar cobertura de código com `pytest-cov`:
+  ```bash
+  pip install pytest-cov
+  python -m pytest --cov=. --cov-report=term-missing
+  ```
+- Integrar CI (GitHub Actions) para gerar badge de status de testes.
+
+### Badge de Testes (opcional)
+
+Após configurar CI, você pode adicionar algo como:
+
+```markdown
+![Tests](https://img.shields.io/badge/tests-passing-brightgreen)
+```
+
 ## Possíveis Evoluções
 
 - Persistência com `Flask-SQLAlchemy` (já no `requirements.txt`).
@@ -198,7 +296,6 @@ curl -X DELETE http://127.0.0.1:5000/tasks/1
 - Paginação, filtros e ordenação no `GET /tasks`.
 - Habilitar CORS com `Flask-Cors` para consumo por um frontend.
 - Documentação interativa (Swagger/OpenAPI) com `flask-restx` ou `apispec`.
-- Testes automatizados com `pytest` e `pytest-flask`.
 - Camadas de serviço/repositório para separar regras de negócio.
 
 ## O que este projeto demonstra
